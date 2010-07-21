@@ -1,0 +1,7 @@
+trudy
+=====
+
+trudy is a modular stress test tool for registries to test corner cases,
+performance and functionality or a registry from the registrar
+perspective. supported protocols are initially only EPP but the
+architecture is open enough to add other protocols easily.
