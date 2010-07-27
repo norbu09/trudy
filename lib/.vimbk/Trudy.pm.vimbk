@@ -1,0 +1,67 @@
+#!/usr/bin/perl
+
+use Mouse;
+
+
+
+
+=head1 AUTHOR
+
+Lenz Gschwendtner, C<< <norbu09 at cpan.org> >>
+
+=head1 BUGS
+
+Please report any bugs or feature requests to C<bug-trudy at rt.cpan.org>, or through
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Trudy>.  I will be notified, and then you'll
+automatically be notified of progress on your bug as I make changes.
+
+
+
+
+=head1 SUPPORT
+
+You can find documentation for this module with the perldoc command.
+
+    perldoc Trudy
+
+
+You can also look for information at:
+
+=over 4
+
+=item * RT: CPAN's request tracker
+
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Trudy>
+
+=item * AnnoCPAN: Annotated CPAN documentation
+
+L<http://annocpan.org/dist/Trudy>
+
+=item * CPAN Ratings
+
+L<http://cpanratings.perl.org/d/Trudy>
+
+=item * Search CPAN
+
+L<http://search.cpan.org/dist/Trudy/>
+
+=back
+
+
+=head1 ACKNOWLEDGEMENTS
+
+
+=head1 COPYRIGHT & LICENSE
+
+Copyright 2010 Lenz Gschwendtner.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the Perl Artistic License.
+
+See http://dev.perl.org/licenses/ for more information.
+
+
+=cut
+
+
+
