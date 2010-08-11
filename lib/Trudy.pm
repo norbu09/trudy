@@ -1,20 +1,24 @@
+#!/usr/bin/perl -Ilib -I../Net-Registry/lib
+
 package Trudy;
 
-use warnings;
 use strict;
+use warnings;
+use Config::General;
+use Net::Registry;
+use Data::Dumper;
 
 =head1 NAME
 
-Trudy - The great new Trudy!
+Trudy - The base modue for the Trudy testing suite
 
 =head1 VERSION
 
-Version 0.01
+Version 0.1
 
 =cut
 
-our $VERSION = '0.01';
-
+our $VERSION = '0.1';
 
 =head1 SYNOPSIS
 
@@ -34,18 +38,42 @@ if you don't export anything, such as for a purely object-oriented module.
 
 =head1 FUNCTIONS
 
-=head2 function1
+=head2 configure
+
+Call this function to configure your environment
 
 =cut
 
-sub function1 {
+=head2 run
+
+this starts the testing
+
+=cut
+
+sub connect {
+    my $conf = shift;
+    return Net::Registry::connect($conf);
 }
 
-=head2 function2
+sub run {
+    my($conf) = @_;
 
-=cut
+    print STDERR Dumper($conf);
+    my $sock = &connect($conf);
+    foreach my $command (keys %{$conf->{commands}}){
 
-sub function2 {
+        my $payload = {
+            domain => 'blubb.co.nz',
+        };
+
+        $conf->{command} = $command;
+        $conf->{payload} = $payload;
+
+        Net::Registry::talk($conf, $sock);
+    }
+
+    my $sleep = int(rand($conf->{min_wait} - $conf->{max_wait})) + $conf->{min_wait};
+    sleep $sleep;
 }
 
 =head1 AUTHOR
@@ -57,9 +85,6 @@ Lenz Gschwendtner, C<< <norbu09 at cpan.org> >>
 Please report any bugs or feature requests to C<bug-trudy at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Trudy>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
-
-
-
 
 =head1 SUPPORT
 
