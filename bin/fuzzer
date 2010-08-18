@@ -6,16 +6,18 @@ use Getopt::Long;
 use Pod::Usage;
 use Config::General;
 use Data::Dumper;
-use Trudy;
+use Trudy::Plugins::SQLite;
 
 #####################
 my $help;
 my $man;
 my $conf = 'etc/agenda.conf';
 my $debug;
+my $db;
 
 GetOptions(
     "config|c=s"   => \$conf,
+    "database|d=s" => \$db,
     "verbose|v"    => \$debug,
     'help|?'       => \$help,
     "man"          => \$man,
@@ -28,12 +30,12 @@ my $_conf = new Config::General($conf);
 my $config = $_conf->{DefaultConfig};
 $config->{debug} = 1 if $debug;
 # read in our commands
-my $res = Trudy::run($config);
+my $res = Trudy::Plugins::SQLite::provide('domain');
 print Dumper($res);
 
 =head1 NAME
 
-trudy - a CLI interface to EPP
+fuzzer - a CLI interface to EPP
 
 =head1 VERSION
 
@@ -41,11 +43,11 @@ Version 0.01
 
 =head1 SYNOPSIS
 
-trudy [options]
+fuzzer [options]
 
  Options:
    -config|c        config file
-   -datafile|d      data file
+   -database|d      database with test data
    -help|?          brief help message
    -verbose|v       be chatty
    -man             full documentation
@@ -59,7 +61,7 @@ is a simple INI file with the command as the ini section identifier and
 then key/value pairs for the commands. The default is 'command.ini'
 
 The config file is INI style as well and configures the remote server
-(host and port) and template paths. the default is 'etc/trudy.ini'
+(host and port) and template paths. the default is 'etc/fuzzer.ini'
 
 =head1 AUTHOR
 
@@ -73,7 +75,7 @@ Please report any bugs or feature requests to C<< <lenz@springtimesoft.com> >>
 
 You can find documentation for this module with the perldoc command.
 
-    perldoc trudy
+    perldoc fuzzer
 
 =head1 ACKNOWLEDGEMENTS
 

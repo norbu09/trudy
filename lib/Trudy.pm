@@ -50,7 +50,7 @@ this starts the testing
 
 =cut
 
-sub connect {
+sub setup {
     my $conf = shift;
     return Net::Registry::connect($conf);
 }
@@ -59,7 +59,7 @@ sub run {
     my($conf) = @_;
 
     print STDERR Dumper($conf);
-    my $sock = &connect($conf);
+    my $sock = setup($conf);
     foreach my $command (keys %{$conf->{commands}}){
 
         my $payload = {
