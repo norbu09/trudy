@@ -2,24 +2,17 @@
 
 package Trudy::Plugins::SQLite;
 
+use vars qw(@ISA @EXPORT_OK $VERSION);
+
 use strict;
 use warnings;
-use Storable qw(freeze thaw);
-use IO::Socket::UNIX;
 use DBI;
+use Exporter;
 use feature 'switch';
 
-our $PORT = '/tmp/_trudy.sqlite.sock';
-
-sub setup {
-    unlink $PORT;
-    my $conn = IO::Socket::UNIX->new(
-        LocalAddr => $PORT,
-        Type      => SOCK_STREAM,
-        Listen    => 5
-    ) or die $@;
-    return $conn;
-}
+$VERSION = 0.1;
+@ISA = qw(Exporter);
+@EXPORT_OK = qw(provide);
 
 sub provide {
     my $type = shift;
@@ -37,7 +30,7 @@ sub get_handle_data {
     return {
         firstname => 'Max',
         lastname => 'Mustermann',
-        street => 'Wos Schoen is 4',
+        street => 'Wos Schoen is 66f',
         city => 'Hintertupf',
         pcode => '12345',
         ccode => 'DE',
@@ -53,11 +46,5 @@ sub get_domain_data {
     };
 }
 
-sub teardown {
-    my $conn = shift;
-
-    close $conn;
-    unlink $PORT;
-}
 
 1;

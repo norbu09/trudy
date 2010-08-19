@@ -1,0 +1,8 @@
+<check> 
+  <contact:check xmlns:contact="urn:ietf:params:xml:ns:contact-1.0" xsi:schemaLocation="urn:ietf:params:xml:ns:contact-1.0 contact-1.0.xsd"> 
+       [%~ FOREACH cont in contact %] 
+                <contact:id>[% cont %]</contact:id> 
+       [%~ END %] 
+  </contact:check> 
+</check> 
+

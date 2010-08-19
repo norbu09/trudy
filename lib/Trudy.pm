@@ -1,12 +1,15 @@
-#!/usr/bin/perl -Ilib -I../Net-Registry/lib
+#!/usr/bin/perl -Ilib
 
 package Trudy;
 
 use strict;
 use warnings;
 use Config::General;
-use Net::Registry;
+use Trudy::Registry;
 use Data::Dumper;
+use Trudy::Plugins::SQLite qw(provide);
+use feature 'switch';
+use Carp;
 
 =head1 NAME
 
@@ -44,7 +47,7 @@ Call this function to configure your environment
 
 =cut
 
-=head2 run
+=head2 setup
 
 this starts the testing
 
@@ -52,7 +55,7 @@ this starts the testing
 
 sub setup {
     my $conf = shift;
-    return Net::Registry::connect($conf);
+    return Trudy::Registry::connect($conf);
 }
 
 sub run {
@@ -60,20 +63,35 @@ sub run {
 
     print STDERR Dumper($conf);
     my $sock = setup($conf);
+    my $login = Trudy::Registry::login($conf, $sock);
+    print STDERR Dumper($login) ;
     foreach my $command (keys %{$conf->{commands}}){
 
-        my $payload = {
-            domain => 'blubb.co.nz',
-        };
+        my $data_type = map_command_data($command);
+        croak "could not find a suitable data function for the command:
+        $command" unless $data_type;
+        my $payload = provide($data_type);
+        print STDERR Dumper($payload);
 
         $conf->{command} = $command;
         $conf->{payload} = $payload;
 
-        Net::Registry::talk($conf, $sock);
+        my $res = Trudy::Registry::talk($conf, $sock);
+        print STDERR Dumper($res);
     }
 
     my $sleep = int(rand($conf->{min_wait} - $conf->{max_wait})) + $conf->{min_wait};
     sleep $sleep;
+    my $logout = Trudy::Registry::logout($conf, $sock);
+}
+
+sub map_command_data {
+    my $command = shift;
+    
+    given($command) {
+        when('createcontact') {return 'handle';}
+    }
+    return;
 }
 
 =head1 AUTHOR
