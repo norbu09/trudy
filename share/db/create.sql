@@ -1,5 +1,4 @@
 CREATE TABLE handles (
-    id integer PRIMARY KEY,
     firstname varchar(255),
     lastname varchar(255),
     company varchar(255),
@@ -9,16 +8,21 @@ CREATE TABLE handles (
     ccode varchar(2),
     phone varchar(255),
     fax varchar(255),
-    email varchar(255),
-    handle_type varchar(255),
+    email varchar(255)
 );
 
 CREATE TABLE domains (
-    id integer PRIMARY KEY,
-    domain character varying(100),
+    domain varchar(100),
+    tld varchar(15)
 );
 
 CREATE TABLE log (
-    
-)
+    id integer PRIMARY KEY,
+    ts integer,
+    input blob,
+    output blob,
+    command varchar(255),
+    code integer,
+    message varchar(255)
+);
 

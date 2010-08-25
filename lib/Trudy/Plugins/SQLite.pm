@@ -7,44 +7,86 @@ use vars qw(@ISA @EXPORT_OK $VERSION);
 use strict;
 use warnings;
 use DBI;
+use Data::Dumper;
 use Exporter;
 use feature 'switch';
+use Carp;
+use Storable qw(freeze thaw);
 
-$VERSION = 0.1;
-@ISA = qw(Exporter);
-@EXPORT_OK = qw(provide);
+$VERSION   = 0.1;
+@ISA       = qw(Exporter);
+@EXPORT_OK = qw(archive provide);
+
+sub setup {
+    my $db  = shift;
+    my $dsn = "DBI:SQLite:dbname=" . $db;
+    my $dbh = DBI->connect($dsn) or croak "Could not open fuzzer database: $@";
+    return $dbh;
+}
+
+sub archive {
+    my ($db, $in, $out) = @_;
+
+    print STDERR Dumper($in, $out);
+    $Data::Dumper::Terse;
+    my $_out = Dumper($out);
+    $_out =~ s/'//g;
+    my $_in = Dumper($in);
+    $_in =~ s/'//g;
+    my $dbh = setup($db->{db});
+    my $insert = "INSERT INTO log ('ts', 'input', 'output', 'command', 'code', 'message') VALUES
+    (".time.",'".$_in."','".$_out."','".$in->{command}."',".$out->{response}->{result}->{code}.",'".$out->{response}->{result}->{msg}->{content}."')";
+    print STDERR "\n----\n";
+    print STDERR $insert;
+    print STDERR "\n----\n";
+    $dbh->do($insert);
+    print STDERR $dbh->errstr() if $dbh->errstr;
+    return;
+}
 
 sub provide {
+    my $db = shift;
     my $type = shift;
 
-    given($type) {
-        when('handle') { return get_handle_data(); }
-        when('domain') { return get_domain_data(); }
+    my $dbh = setup($db->{db});
+
+    given ($type) {
+        when ('handle') { return get_handle_data($dbh); }
+        when ('domain') { return get_domain_data($dbh); }
     }
-    
+
     return "ERR: data type not found";
 
 }
 
 sub get_handle_data {
-    return {
-        firstname => 'Max',
-        lastname => 'Mustermann',
-        street => 'Wos Schoen is 66f',
-        city => 'Hintertupf',
-        pcode => '12345',
-        ccode => 'DE',
-        phone => '+49.123456789',
-        email => 'max@mustermann.de',
-    };
+    my $dbh = shift;
+
+    my $chr = chr( int( rand(26) + 97 ) );
+
+    my $handles = $dbh->selectall_arrayref(
+        "SELECT * FROM handles WHERE firstname LIKE '$chr%'",
+        { Slice => {} } );
+    return $handles->[ rand( scalar @{$handles} ) ];
 }
 
 sub get_domain_data {
+    my $dbh = shift;
+
+    my $chr = chr( int( rand(26) + 97 ) );
+
+    my $domains = $dbh->selectall_arrayref(
+        "SELECT * FROM domains WHERE domain LIKE '$chr%'",
+        { Slice => {} } );
+    my $dom = $domains->[ rand( scalar @{$domains} ) ];
+
     return {
-        domain => 'muster.de',
-        ns => [{host => 'ns1.muster.de', ip4 => '1.2.3.4'}, {host => 'ns1.dns.com'}, {host => 'ns2.dns.com'}],
+        domain => $dom->{domain}.'.'.$dom->{tld},
+        ns     => [
+            { host => 'ns1.'.$domains->[0]->{domain}.'.'.$domains->[0]->{tld} },
+            { host => 'ns2.'.$domains->[0]->{domain}.'.'.$domains->[0]->{tld} },
+        ],
     };
 }
-
 
 1;

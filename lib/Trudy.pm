@@ -7,7 +7,7 @@ use warnings;
 use Config::General;
 use Trudy::Registry;
 use Data::Dumper;
-use Trudy::Plugins::SQLite qw(provide);
+use Trudy::Plugins::SQLite qw(archive provide);
 use feature 'switch';
 use Carp;
 
@@ -65,19 +65,21 @@ sub run {
     my $sock = setup($conf);
     my $login = Trudy::Registry::login($conf, $sock);
     print STDERR Dumper($login) ;
+    die "Could not log in: ".$login->{response}->{result}->{msg}->{content} 
+        unless $login->{response}->{result}->{code} == 1000;
     foreach my $command (keys %{$conf->{commands}}){
 
         my $data_type = map_command_data($command);
-        croak "could not find a suitable data function for the command:
-        $command" unless $data_type;
-        my $payload = provide($data_type);
+        print STDERR "DATA TYPE: $data_type\n";
+        croak "could not find a suitable data provider for the command: $command" unless $data_type;
+        my $payload = provide($conf->{datastore}, $data_type);
         print STDERR Dumper($payload);
 
         $conf->{command} = $command;
         $conf->{payload} = $payload;
 
         my $res = Trudy::Registry::talk($conf, $sock);
-        print STDERR Dumper($res);
+        save($conf, $res);
     }
 
     my $sleep = int(rand($conf->{min_wait} - $conf->{max_wait})) + $conf->{min_wait};
@@ -85,11 +87,19 @@ sub run {
     my $logout = Trudy::Registry::logout($conf, $sock);
 }
 
+sub save {
+    my ($in, $out) = @_;
+
+    print STDERR Dumper($out);
+    archive($in->{datastore}, $in, $out);
+}
+
 sub map_command_data {
     my $command = shift;
     
     given($command) {
         when('createcontact') {return 'handle';}
+        when('statusdomain') {return 'domain';}
     }
     return;
 }
