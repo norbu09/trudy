@@ -30,7 +30,7 @@ my $config = $_conf->{DefaultConfig};
 $config->{debug} = 1 if $debug;
 
 # copy the template DB to the working DB
-my $work_db = $config->{datastore}->{db}.time;
+my $work_db = $config->{datastore}->{db}.'.'.time;
 copy($config->{datastore}->{db}, $work_db) 
     or die "Could not create test database: $@";
 $config->{datastore}->{db} = $work_db;

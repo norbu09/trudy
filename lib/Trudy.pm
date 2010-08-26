@@ -9,6 +9,7 @@ use Trudy::Registry;
 use Data::Dumper;
 use Trudy::Plugins::SQLite qw(archive provide);
 use feature 'switch';
+use List::Util 'shuffle';
 use Carp;
 
 =head1 NAME
@@ -67,8 +68,18 @@ sub run {
     print STDERR Dumper($login) ;
     die "Could not log in: ".$login->{response}->{result}->{msg}->{content} 
         unless $login->{response}->{result}->{code} == 1000;
+    my @commands;
     foreach my $command (keys %{$conf->{commands}}){
-
+        my $c = 0;
+        while($c < $conf->{commands}->{$command}){
+            push(@commands, $command);
+            $c++
+        }
+    }
+    @commands = shuffle(@commands);
+    print STDERR Dumper(@commands);
+    while(@commands){
+        my $command = shift(@commands);
         my $data_type = map_command_data($command);
         print STDERR "DATA TYPE: $data_type\n";
         croak "could not find a suitable data provider for the command: $command" unless $data_type;
@@ -80,10 +91,10 @@ sub run {
 
         my $res = Trudy::Registry::talk($conf, $sock);
         save($conf, $res);
+        my $sleep = int(rand($conf->{min_wait} - $conf->{max_wait})) + $conf->{min_wait};
+        sleep $sleep;
     }
 
-    my $sleep = int(rand($conf->{min_wait} - $conf->{max_wait})) + $conf->{min_wait};
-    sleep $sleep;
     my $logout = Trudy::Registry::logout($conf, $sock);
 }
 
