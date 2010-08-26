@@ -1,4 +1,4 @@
-CREATE TABLE handles (
+CREATE TABLE contacts (
     firstname varchar(255),
     lastname varchar(255),
     company varchar(255),
@@ -26,3 +26,6 @@ CREATE TABLE log (
     message varchar(255)
 );
 
+CREATE TABLE handles (
+    handle varchar(255)
+);

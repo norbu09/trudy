@@ -65,7 +65,7 @@ sub get_handle_data {
     my $chr = chr( int( rand(26) + 97 ) );
 
     my $handles = $dbh->selectall_arrayref(
-        "SELECT * FROM handles WHERE firstname LIKE '$chr%'",
+        "SELECT * FROM contacts WHERE firstname LIKE '$chr%'",
         { Slice => {} } );
     return $handles->[ rand( scalar @{$handles} ) ];
 }

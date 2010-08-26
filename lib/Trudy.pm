@@ -68,18 +68,18 @@ sub run {
     print STDERR Dumper($login) ;
     die "Could not log in: ".$login->{response}->{result}->{msg}->{content} 
         unless $login->{response}->{result}->{code} == 1000;
-    my @commands;
+    my @_commands;
     foreach my $command (keys %{$conf->{commands}}){
         my $c = 0;
         while($c < $conf->{commands}->{$command}){
-            push(@commands, $command);
-            $c++
+            push(@_commands, $command);
+            $c++;
         }
     }
-    @commands = shuffle(@commands);
-    print STDERR Dumper(@commands);
+    my @commands = shuffle(@_commands);
     while(@commands){
         my $command = shift(@commands);
+        print "COMMAND: $command\n"; next;
         my $data_type = map_command_data($command);
         print STDERR "DATA TYPE: $data_type\n";
         croak "could not find a suitable data provider for the command: $command" unless $data_type;
