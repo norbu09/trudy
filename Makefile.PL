@@ -7,11 +7,14 @@ license  'perl';
 
 build_requires 'Test::More';
 
-requires 'Mouse';
 requires 'Config::General';
-requires 'Net::Registry';
+requires 'File::ShareDir';
+requires 'Getopt::Long';
+requires 'Pod::Usage';
+requires 'Template::Alloy';
+requires 'XML::LibXML::Simple';
+requires 'DBD::SQLite';
 
 auto_install;
 
 WriteAll;
-
