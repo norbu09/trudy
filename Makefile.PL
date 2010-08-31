@@ -14,6 +14,7 @@ requires 'Pod::Usage';
 requires 'Template::Alloy';
 requires 'XML::LibXML::Simple';
 requires 'DBD::SQLite';
+requires 'Mojolicious::Lite';
 
 auto_install;
 

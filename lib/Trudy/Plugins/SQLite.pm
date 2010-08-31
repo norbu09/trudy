@@ -89,4 +89,12 @@ sub get_domain_data {
     };
 }
 
+sub get_result_summary {
+    my $db = shift;
+    my $dbh = setup($db);
+    my $stats = $dbh->selectall_arrayref(qq/SELECT command, code, message, count(*) AS amt from log group by code,command order by command/,
+            {Slice => {}} );
+    return $stats;
+}
+
 1;

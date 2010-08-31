@@ -1,0 +1,56 @@
+#!/usr/bin/env perl
+
+use Mojolicious::Lite;
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+use Trudy;
+
+unshift(@ARGV, 'daemon');
+
+my $db = $ARGV[1];
+die "Usage: $0 [DB file]\n" unless $db;
+
+get '/' =>  sub  {
+    my $self = shift;
+
+    $self->stash->{db} = $db;
+    $self->stash->{stats} = Trudy::get_result_summary($db);
+    
+} => 'index';
+
+get '/:groovy' => sub {
+    my $self = shift;
+    $self->render(text => $self->param('groovy'), layout => 'default');
+};
+
+app->start;
+__DATA__
+
+@@ index.html.ep
+% layout 'default';
+<h1>overview of Trudy DB</h1><h2>(<%= $db %>)</h2>
+
+<table>
+% foreach my $line (@$stats) {
+<tr>
+  <td>
+    <%= $line->{amt} %>
+  </td>
+  <td>
+    <%= $line->{command} %>
+  </td>
+  <td>
+    <%= $line->{message} %>
+  </td>
+  <td>
+    (<%= $line->{code} %>)
+  </td>
+</tr>
+% }
+</table>
+
+@@ layouts/default.html.ep
+<!doctype html><html>
+    <head><title>Trudy!</title></head>
+    <body><%== content %></body>
+</html>

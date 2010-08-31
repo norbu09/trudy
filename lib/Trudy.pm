@@ -104,6 +104,11 @@ sub save {
     archive($in->{datastore}, $in, $out);
 }
 
+sub get_result_summary {
+    my $datastore = shift;
+    return Trudy::Plugins::SQLite::get_result_summary($datastore);
+}
+
 sub map_command_data {
     my $command = shift;
     
