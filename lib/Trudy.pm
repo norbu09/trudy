@@ -8,7 +8,7 @@ use Config::General;
 use Trudy::Registry;
 use Data::Dumper;
 use Trudy::Plugins::SQLite qw(archive provide);
-use feature 'switch';
+use Switch;
 use List::Util 'shuffle';
 use Carp;
 
@@ -108,9 +108,9 @@ sub save {
 sub map_command_data {
     my $command = shift;
     
-    given($command) {
-        when('createcontact') {return 'handle';}
-        when('statusdomain') {return 'domain';}
+    switch($command) {
+       case 'createcontact' {return 'handle';}
+       case 'statusdomain' {return 'domain';}
     }
     return;
 }

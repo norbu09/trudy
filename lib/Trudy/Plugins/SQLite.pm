@@ -9,7 +9,7 @@ use warnings;
 use DBI;
 use Data::Dumper;
 use Exporter;
-use feature 'switch';
+use Switch;
 use Carp;
 use Storable qw(freeze thaw);
 
@@ -50,9 +50,9 @@ sub provide {
 
     my $dbh = setup($db->{db});
 
-    given ($type) {
-        when ('handle') { return get_handle_data($dbh); }
-        when ('domain') { return get_domain_data($dbh); }
+    switch ($type) {
+        case 'handle' { return get_handle_data($dbh); }
+        case 'domain' { return get_domain_data($dbh); }
     }
 
     return "ERR: data type not found";
