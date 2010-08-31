@@ -7,12 +7,13 @@ use Pod::Usage;
 use Config::General;
 use Data::Dumper;
 use File::Copy;
+use FindBin;
 use Trudy;
 
 #####################
 my $help;
 my $man;
-my $conf = 'etc/agenda.conf';
+my $conf = $FindBin::Bin.'/../etc/agenda.conf';
 my $debug;
 
 GetOptions(

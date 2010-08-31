@@ -10,6 +10,7 @@ use IO::Socket::SSL qw(inet4);
 use Template::Alloy;
 use XML::LibXML::Simple qw(XMLin);
 use Data::Dumper;
+use FindBin;
 
 =head1 NAME
 
@@ -47,15 +48,26 @@ sub connect {
     my $client;
     print STDERR Dumper($conf) if $conf->{debug};
 
-    if ( $conf->{ssl_cert} ) {
+    if ( $conf->{account}->{ssl_cert} ) {
+        my $cert;
+        my $key;
+        if(-f $conf->{account}->{ssl_cert}){
+            $cert = $conf->{account}->{ssl_cert};
+            $key = $conf->{account}->{ssl_key};
+        } elsif (-f $FindBin::Bin.'/../'.$conf->{account}->{ssl_cert}){
+            $cert = $FindBin::Bin.'/../'.$conf->{account}->{ssl_cert};
+            $key = $FindBin::Bin.'/../'.$conf->{account}->{ssl_key};
+        } else {
+            die "Could not find SSL CERT file!";
+        }
         $client = new IO::Socket::SSL(
             PeerAddr => $conf->{account}->{host},
             PeerPort => $conf->{account}->{port} || 700,
 
             #LocalAddr     => $conf->{myip},
             Blocking      => 1,
-            SSL_key_file  => $conf->{account}->{ssl_key},
-            SSL_cert_file => $conf->{account}->{ssl_cert},
+            SSL_key_file  => $key,
+            SSL_cert_file => $cert,
             SSL_use_cert  => 1,
         );
     }

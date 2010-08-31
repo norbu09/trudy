@@ -77,9 +77,8 @@ sub run {
         }
     }
     my @commands = shuffle(@_commands);
-    while(@commands){
-        my $command = shift(@commands);
-        print "COMMAND: $command\n"; next;
+    foreach my $command (@commands){
+        #print "COMMAND: $command\n"; next;
         my $data_type = map_command_data($command);
         print STDERR "DATA TYPE: $data_type\n";
         croak "could not find a suitable data provider for the command: $command" unless $data_type;
@@ -111,6 +110,7 @@ sub map_command_data {
     switch($command) {
        case 'createcontact' {return 'handle';}
        case 'statusdomain' {return 'domain';}
+       case 'checkdomain' {return 'domain';}
     }
     return;
 }
