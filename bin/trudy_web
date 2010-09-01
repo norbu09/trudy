@@ -18,6 +18,24 @@ get '/' =>  sub  {
     
 } => 'index';
 
+get '/command/:command' => sub  {
+    my $self = shift;
+    my $command = $self->param('command');
+    
+    $self->stash->{command} = $command;
+    $self->stash->{commands} = Trudy::get_command_summary($db, $command);
+
+} => 'command';
+
+get '/code/:code' => sub  {
+    my $self = shift;
+    my $code = $self->param('code');
+    
+    $self->stash->{code} = $code;
+    $self->stash->{codes} = Trudy::get_code_summary($db, $code);
+
+} => 'code';
+
 get '/:groovy' => sub {
     my $self = shift;
     $self->render(text => $self->param('groovy'), layout => 'default');
@@ -37,14 +55,56 @@ __DATA__
     <%= $line->{amt} %>
   </td>
   <td>
-    <%= $line->{command} %>
+    <a href="/command/<%= $line->{command} %>"><%= $line->{command} %></a>
   </td>
   <td>
     <%= $line->{message} %>
   </td>
   <td>
-    (<%= $line->{code} %>)
+    <a href="/code/<%= $line->{code} %>">(<%= $line->{code} %>)</a>
   </td>
+</tr>
+% }
+</table>
+
+@@ command.html.ep
+<h1><%= $command %></h1>
+<table>
+% foreach my $line (@$commands) {
+<tr>
+  <td>
+    <%= $line->{command} %>
+  </td>
+  <td>
+    <%= $line->{message} %>
+  </td>
+  <td><pre>
+    <%= $line->{input} %>
+  </pre></td>
+  <td><pre>
+    <%= $line->{output} %>
+  </pre></td>
+</tr>
+% }
+</table>
+
+@@ code.html.ep
+<h1><%= $code %></h1>
+<table>
+% foreach my $line (@$codes) {
+<tr>
+  <td>
+    <%= $line->{command} %>
+  </td>
+  <td>
+    <%= $line->{message} %>
+  </td>
+  <td><pre>
+    <%= $line->{input} %>
+  </pre></td>
+  <td><pre>
+    <%= $line->{output} %>
+  </pre></td>
 </tr>
 % }
 </table>

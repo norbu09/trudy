@@ -97,4 +97,22 @@ sub get_result_summary {
     return $stats;
 }
 
+sub get_code_summary {
+    my $db = shift;
+    my $code = shift;
+    my $dbh = setup($db);
+    my $stats = $dbh->selectall_arrayref("SELECT * from log where code=$code",
+            {Slice => {}} );
+    return $stats;
+}
+
+sub get_command_summary {
+    my $db = shift;
+    my $command = shift;
+    my $dbh = setup($db);
+    my $stats = $dbh->selectall_arrayref("SELECT * from log where command='$command'",
+            {Slice => {}} );
+    return $stats;
+}
+
 1;

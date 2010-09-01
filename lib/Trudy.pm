@@ -109,6 +109,16 @@ sub get_result_summary {
     return Trudy::Plugins::SQLite::get_result_summary($datastore);
 }
 
+sub get_code_summary {
+    my ($datastore, $code) = @_;
+    return Trudy::Plugins::SQLite::get_code_summary($datastore, $code);
+}
+
+sub get_command_summary {
+    my ($datastore, $command) = @_;
+    return Trudy::Plugins::SQLite::get_command_summary($datastore, $command);
+}
+
 sub map_command_data {
     my $command = shift;
     
