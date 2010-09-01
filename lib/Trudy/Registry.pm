@@ -85,6 +85,16 @@ sub talk {
     return $@ || $res;
 }
 
+sub normalize {
+    my $req = shift;
+
+    my $LIB = _use($req);
+    print STDERR "LIB: $LIB\n";
+    my $res;
+    eval { $res = $LIB->normalize(@_) };
+    return $@ || $res;
+}
+
 sub _use {
     my $req = shift;
     carp "Error: You need to define a interface for your request"

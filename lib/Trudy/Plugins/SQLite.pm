@@ -15,7 +15,7 @@ use Storable qw(freeze thaw);
 
 $VERSION   = 0.1;
 @ISA       = qw(Exporter);
-@EXPORT_OK = qw(archive provide);
+@EXPORT_OK = qw(archive preserve provide);
 
 sub setup {
     my $db  = shift;
@@ -28,7 +28,7 @@ sub archive {
     my ($db, $in, $out) = @_;
 
     print STDERR Dumper($in, $out);
-    $Data::Dumper::Terse;
+    #$Data::Dumper::Terse;
     my $_out = Dumper($out);
     $_out =~ s/'//g;
     my $_in = Dumper($in);
@@ -46,20 +46,63 @@ sub archive {
 
 sub provide {
     my $db = shift;
-    my $type = shift;
+    my $_type = shift;
 
     my $dbh = setup($db->{db});
 
-    switch ($type) {
-        case 'handle' { return get_handle_data($dbh); }
-        case 'domain' { return get_domain_data($dbh); }
+    my @types = split(/:/, $_type);
+    my %res;
+    foreach my $type (@types){
+        switch ($type) {
+            case 'handles'      { %res = (%res, %{get_handle_data($dbh)}); }
+            case 'contact'      { %res = (%res, %{get_contact_data($dbh)}); }
+            case 'domain'       { %res = (%res, %{get_domain_data($dbh)}); }
+            case 'systemdomain' { %res = (%res, %{get_systemdomain_data($dbh)}); }
+            default             { %res = (%res, "ERR: $type has no data generator!"); }
+        }
+    }
+    return \%res;
+}
+
+sub preserve {
+    my ($db, $command, $data) = @_;
+
+    my $dbh = setup($db->{db});
+
+    switch ($command) {
+        case 'createcontact' { return set_handle_data($dbh, $data); }
+        case 'createdomain' { return set_domain_data($dbh, $data); }
     }
 
-    return "ERR: data type not found";
+    return "ERR: command outcome can not be preserved";
 
 }
 
-sub get_handle_data {
+sub set_handle_data {
+    my ($dbh, $handle) = @_;
+
+    my $insert = "INSERT INTO handles ('handle') VALUES ('$handle')";
+    print STDERR "\n----\n";
+    print STDERR $insert;
+    print STDERR "\n----\n";
+    $dbh->do($insert);
+    print STDERR $dbh->errstr() if $dbh->errstr;
+    return;
+}
+
+sub set_domain_data {
+    my ($dbh, $domain) = @_;
+
+    my $insert = "INSERT INTO systemdomains ('domain') VALUES ('$domain')";
+    print STDERR "\n----\n";
+    print STDERR $insert;
+    print STDERR "\n----\n";
+    $dbh->do($insert);
+    print STDERR $dbh->errstr() if $dbh->errstr;
+    return;
+}
+
+sub get_contact_data {
     my $dbh = shift;
 
     my $chr = chr( int( rand(26) + 97 ) );
@@ -67,8 +110,23 @@ sub get_handle_data {
     my $handles = $dbh->selectall_arrayref(
         "SELECT * FROM contacts WHERE firstname LIKE '$chr%'",
         { Slice => {} } );
-    return $handles->[ rand( scalar @{$handles} ) ];
+    my $handle = $handles->[ rand( scalar @{$handles} ) ];
+    $handle->{contact_id} = uc($chr).'-'.time;
+    return $handle;
 }
+
+sub get_handle_data {
+    my $dbh = shift;
+
+    my $_handles = $dbh->selectall_arrayref(
+        "SELECT * FROM handles",
+        { Slice => {} } );
+    my $handles->{owner} = $_handles->[ rand( scalar @{$_handles} ) ];
+    $handles->{admin} = $_handles->[ rand( scalar @{$_handles} ) ];
+    $handles->{tech} = $_handles->[ rand( scalar @{$_handles} ) ];
+    return $handles;
+}
+
 
 sub get_domain_data {
     my $dbh = shift;
@@ -87,6 +145,13 @@ sub get_domain_data {
             { host => 'ns2.'.$domains->[0]->{domain}.'.'.$domains->[0]->{tld} },
         ],
     };
+}
+
+sub get_systemdomain_data {
+    my $dbh = shift;
+
+    my $domains = $dbh->selectall_arrayref( "SELECT * FROM systemdomains", { Slice => {} } );
+    return $domains->[ rand( scalar @{$domains} ) ];
 }
 
 sub get_result_summary {

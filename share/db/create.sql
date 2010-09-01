@@ -29,3 +29,7 @@ CREATE TABLE log (
 CREATE TABLE handles (
     handle varchar(255)
 );
+
+CREATE TABLE systemdomains (
+    domain varchar(255)
+);

@@ -7,7 +7,7 @@ use warnings;
 use Config::General;
 use Trudy::Registry;
 use Data::Dumper;
-use Trudy::Plugins::SQLite qw(archive provide);
+use Trudy::Plugins::SQLite qw(archive preserve provide);
 use Switch;
 use List::Util 'shuffle';
 use Carp;
@@ -89,6 +89,7 @@ sub run {
         $conf->{payload} = $payload;
 
         my $res = Trudy::Registry::talk($conf, $sock);
+        save_result($conf, $command, $res) if command_has_outcome($command);
         save($conf, $res);
         my $sleep = int(rand($conf->{min_wait} - $conf->{max_wait})) + $conf->{min_wait};
         sleep $sleep;
@@ -102,6 +103,14 @@ sub save {
 
     print STDERR Dumper($out);
     archive($in->{datastore}, $in, $out);
+}
+
+sub save_result {
+    my ($conf, $command, $result) = @_;
+    my $res = Trudy::Registry::normalize($conf, $command, $result);
+    if($res){
+        preserve($conf->{datastore}, $command, $res);
+    }
 }
 
 sub get_result_summary {
@@ -123,9 +132,20 @@ sub map_command_data {
     my $command = shift;
     
     switch($command) {
-       case 'createcontact' {return 'handle';}
+       case 'createcontact' {return 'contact';}
        case 'statusdomain' {return 'domain';}
        case 'checkdomain' {return 'domain';}
+       case 'createdomain' {return 'domain:handles';}
+    }
+    return;
+}
+
+sub command_has_outcome {
+    my $command = shift;
+    
+    switch($command) {
+       case 'createcontact' {return '1';}
+       case 'createdomain' {return '1';}
     }
     return;
 }

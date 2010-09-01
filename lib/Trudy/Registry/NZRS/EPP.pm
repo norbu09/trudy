@@ -5,6 +5,7 @@ package Trudy::Registry::NZRS::EPP;
 use strict;
 use warnings;
 use Carp;
+use Switch;
 use File::ShareDir 'module_dir';
 use IO::Socket::SSL qw(inet4);
 use Template::Alloy;
@@ -157,6 +158,28 @@ sub talk {
     return $hash;
 }
 
+sub normalize {
+    my ($_pkg, $command, $data) = @_;
+
+    switch($command){
+        case 'createcontact' {return _filter_create_contact($data);}
+        case 'createdomain' {return _filter_create_domain($data);}
+    }
+    return;
+}
+
+sub _filter_create_contact {
+    my ($data) = @_;
+    return unless $data->{response}->{result}->{code} == 1000;
+    return $data->{response}->{resData}->{'contact:creData'}->{'contact:id'};
+}
+
+sub _filter_create_domain {
+    my ($data) = @_;
+    return unless $data->{response}->{result}->{code} == 1000;
+    return $data->{response}->{resData}->{'domain:creData'}->{'domain:name'};
+}
+
 =head2 _template
 
 This internal function parses the data structure into our XML template
@@ -169,7 +192,9 @@ template tree.
 sub _template {
     my ($data) = @_;
     $data->{payload}->{command} = $data->{command} . '.tt';
-    print STDERR Dumper($data);    # if $data->{debug};
+    $data->{payload}->{transaction_id} = time.'-trudy'
+        unless $data->{payload}->{transaction_id};
+    print STDERR Dumper($data) if $data->{debug};
      #my $t = Template::Alloy->new( DEBUG => 'DEBUG_ALL', INCLUDE_PATH => [ $data->{account}->{template_path}, module_dir(__PACKAGE__)."/share/NZRS/EPP" ], );
     my $t =
       Template::Alloy->new(

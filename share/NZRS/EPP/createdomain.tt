@@ -4,13 +4,13 @@
       <domain:ns>
         [%~ FOREACH dns in ns %]
         <domain:hostAttr>
-          <domain:hostName>[% dns %]</domain:hostName>
+          <domain:hostName>[% dns.host %]</domain:hostName>
         </domain:hostAttr>
         [%~ END %]
       </domain:ns>
-    <domain:registrant>[% owner %]</domain:registrant>
-    <domain:contact type="admin">[% admin %]</domain:contact>
-    <domain:contact type="tech">[% tech %]</domain:contact>
+    <domain:registrant>[% owner.handle %]</domain:registrant>
+    <domain:contact type="admin">[% admin.handle %]</domain:contact>
+    <domain:contact type="tech">[% tech.handle %]</domain:contact>
     <domain:authInfo>
       <domain:pw></domain:pw>
     </domain:authInfo>
