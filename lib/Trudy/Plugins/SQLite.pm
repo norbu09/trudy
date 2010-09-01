@@ -54,10 +54,11 @@ sub provide {
     my %res;
     foreach my $type (@types){
         switch ($type) {
-            case 'handles'      { %res = (%res, %{get_handle_data($dbh)}); }
+            case 'handle'       { %res = (%res, %{get_handle_data($dbh)}); }
             case 'contact'      { %res = (%res, %{get_contact_data($dbh)}); }
             case 'domain'       { %res = (%res, %{get_domain_data($dbh)}); }
             case 'systemdomain' { %res = (%res, %{get_systemdomain_data($dbh)}); }
+            case 'reghandles'   { %res = (%res, %{get_reghandles_data($dbh)}); }
             default             { %res = (%res, "ERR: $type has no data generator!"); }
         }
     }
@@ -121,9 +122,15 @@ sub get_handle_data {
     my $_handles = $dbh->selectall_arrayref(
         "SELECT * FROM handles",
         { Slice => {} } );
-    my $handles->{owner} = $_handles->[ rand( scalar @{$_handles} ) ];
-    $handles->{admin} = $_handles->[ rand( scalar @{$_handles} ) ];
-    $handles->{tech} = $_handles->[ rand( scalar @{$_handles} ) ];
+    return $_handles->[ rand( scalar @{$_handles} ) ] || {handle => 'X-478942389'};
+}
+
+sub get_reghandles_data {
+    my $dbh = shift;
+
+    my $handles->{owner} = get_handle_data($dbh);
+    $handles->{admin} = get_handle_data($dbh);
+    $handles->{tech} = get_handle_data($dbh);
     return $handles;
 }
 
@@ -151,7 +158,7 @@ sub get_systemdomain_data {
     my $dbh = shift;
 
     my $domains = $dbh->selectall_arrayref( "SELECT * FROM systemdomains", { Slice => {} } );
-    return $domains->[ rand( scalar @{$domains} ) ];
+    return $domains->[ rand( scalar @{$domains} ) ] || {domain => 'no-domain.org.nz'};
 }
 
 sub get_result_summary {

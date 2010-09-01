@@ -133,9 +133,13 @@ sub map_command_data {
     
     switch($command) {
        case 'createcontact' {return 'contact';}
-       case 'statusdomain' {return 'domain';}
-       case 'checkdomain' {return 'domain';}
-       case 'createdomain' {return 'domain:handles';}
+       case 'createdomain'  {return 'domain:reghandles';}
+       case 'checkcontact'  {return 'handle';}
+       case 'checkdomain'   {return 'domain';}
+       case 'infocontact'   {return 'handle';}
+       case 'infodomain'    {return 'systemdomain';}
+       case 'deletecontact' {return 'handle';}
+       case 'deletedomain'  {return 'systemdomain';}
     }
     return;
 }
