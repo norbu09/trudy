@@ -128,9 +128,10 @@ sub get_handle_data {
 sub get_reghandles_data {
     my $dbh = shift;
 
-    my $handles->{owner} = get_handle_data($dbh);
+    my $handles;
+    $handles->{owner} = get_handle_data($dbh);
     $handles->{admin} = get_handle_data($dbh);
-    $handles->{tech} = get_handle_data($dbh);
+    $handles->{tech}  = get_handle_data($dbh);
     return $handles;
 }
 
