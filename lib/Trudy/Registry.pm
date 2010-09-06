@@ -78,7 +78,7 @@ sub talk {
 
     print STDERR "Talking ...\n" if $req->{debug};
     my $LIB = _use($req);
-    print STDERR "LIB: $LIB\n";
+    #print STDERR "LIB: $LIB\n";
     my $res;
     unshift(@_, $req); 
     eval { $res = $LIB->talk(@_) };
@@ -89,7 +89,7 @@ sub normalize {
     my $req = shift;
 
     my $LIB = _use($req);
-    print STDERR "LIB: $LIB\n";
+    #print STDERR "LIB: $LIB\n";
     my $res;
     eval { $res = $LIB->normalize(@_) };
     return $@ || $res;

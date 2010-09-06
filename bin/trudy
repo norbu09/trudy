@@ -42,7 +42,7 @@ $config->{datastore}->{db} = $work_db;
 my $res = Trudy::run($config);
 
 if($migrate){
-    Trudy::migrate_results($work_db, $base_db);
+    Trudy::migrate_results($work_db, $base_db, $debug);
 }
 
 print Dumper($res);

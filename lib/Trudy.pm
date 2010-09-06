@@ -62,10 +62,10 @@ sub setup {
 sub run {
     my($conf) = @_;
 
-    print STDERR Dumper($conf);
+    #print STDERR Dumper($conf);
     my $sock = setup($conf);
     my $login = Trudy::Registry::login($conf, $sock);
-    print STDERR Dumper($login) ;
+    #print STDERR Dumper($login) ;
     die "Could not log in: ".$login->{response}->{result}->{msg}->{content} 
         unless $login->{response}->{result}->{code} == 1000;
     my @_commands;
@@ -78,12 +78,12 @@ sub run {
     }
     my @commands = shuffle(@_commands);
     foreach my $command (@commands){
-        #print "COMMAND: $command\n"; next;
+        print "COMMAND: $command ... ";
         my $data_type = map_command_data($command);
-        print STDERR "DATA TYPE: $data_type\n";
+        #print STDERR "DATA TYPE: $data_type\n";
         croak "could not find a suitable data provider for the command: $command" unless $data_type;
         my $payload = provide($conf->{datastore}, $data_type);
-        print STDERR Dumper($payload);
+        #print STDERR Dumper($payload);
 
         $conf->{command} = $command;
         $conf->{payload} = $payload;
@@ -91,6 +91,7 @@ sub run {
         my $res = Trudy::Registry::talk($conf, $sock);
         save_result($conf, $command, $res) if command_has_outcome($command);
         save($conf, $res);
+        print $res->{response}->{result}->{msg}->{content}."\n";
         my $sleep = int(rand($conf->{min_wait} - $conf->{max_wait})) + $conf->{min_wait};
         sleep $sleep;
     }
@@ -101,7 +102,7 @@ sub run {
 sub save {
     my ($in, $out) = @_;
 
-    print STDERR Dumper($out);
+    #print STDERR Dumper($out);
     archive($in->{datastore}, $in, $out);
 }
 
@@ -114,8 +115,8 @@ sub save_result {
 }
 
 sub migrate_results {
-    my ($src, $dest) = @_;
-    migrate($src, $dest)
+    my ($src, $dest, $debug) = @_;
+    migrate($src, $dest, $debug);
 }
 
 sub get_result_summary {

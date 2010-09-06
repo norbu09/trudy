@@ -26,18 +26,20 @@ sub setup {
 sub archive {
     my ($db, $in, $out) = @_;
 
-    print STDERR Dumper($in, $out);
+    #print STDERR Dumper($in, $out);
     #$Data::Dumper::Terse;
     my $_out = Dumper($out);
     $_out =~ s/'//g;
     my $_in = Dumper($in);
     $_in =~ s/'//g;
+    my $msg = $out->{response}->{result}->{msg}->{content};
+    $msg =~ s/'//g;
     my $dbh = setup($db->{db});
     my $insert = "INSERT INTO log ('ts', 'input', 'output', 'command', 'code', 'message') VALUES
-    (".time.",'".$_in."','".$_out."','".$in->{command}."',".$out->{response}->{result}->{code}.",'".$out->{response}->{result}->{msg}->{content}."')";
-    print STDERR "\n----\n";
-    print STDERR $insert;
-    print STDERR "\n----\n";
+    (".time.",'".$_in."','".$_out."','".$in->{command}."',".$out->{response}->{result}->{code}.",'".$msg."')";
+    #print STDERR "\n----\n";
+    #print STDERR $insert;
+    #print STDERR "\n----\n";
     $dbh->do($insert);
     print STDERR $dbh->errstr() if $dbh->errstr;
     return;
@@ -79,7 +81,7 @@ sub preserve {
 }
 
 sub migrate {
-    my ($src, $dest) = @_;
+    my ($src, $dest, $debug) = @_;
 
     my $dbh1 = setup($src);
     my $dbh2 = setup($dest);
@@ -89,7 +91,7 @@ sub migrate {
         foreach my $line (@{$res}){
             my $vals = join(',', @{$line});
             my $ins = "INSERT INTO $table VALUES ('$vals')\n";
-            print STDERR $ins;
+            print STDERR $ins if $debug;
             $dbh2->do($ins);
             print STDERR $dbh2->errstr() if $dbh2->errstr;
         }
@@ -101,9 +103,9 @@ sub set_handle_data {
     my ($dbh, $handle) = @_;
 
     my $insert = "INSERT INTO handles ('handle') VALUES ('$handle')";
-    print STDERR "\n----\n";
-    print STDERR $insert;
-    print STDERR "\n----\n";
+    #print STDERR "\n----\n";
+    #print STDERR $insert;
+    #print STDERR "\n----\n";
     $dbh->do($insert);
     print STDERR $dbh->errstr() if $dbh->errstr;
     return;
@@ -113,9 +115,9 @@ sub set_domain_data {
     my ($dbh, $domain) = @_;
 
     my $insert = "INSERT INTO systemdomains ('domain') VALUES ('$domain')";
-    print STDERR "\n----\n";
-    print STDERR $insert;
-    print STDERR "\n----\n";
+    #print STDERR "\n----\n";
+    #print STDERR $insert;
+    #print STDERR "\n----\n";
     $dbh->do($insert);
     print STDERR $dbh->errstr() if $dbh->errstr;
     return;

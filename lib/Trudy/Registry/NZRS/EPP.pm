@@ -142,7 +142,7 @@ responses are just plain perl hashs.
 sub talk {
     my ( $_pkg, $data, $sock ) = @_;
 
-    print STDERR Dumper($data) if $data->{debug};
+    #print STDERR Dumper($data) if $data->{debug};
 
     #print STDERR Dumper($sock) if $data->{debug};
 
@@ -155,6 +155,10 @@ sub talk {
     my $hash = _parse($res);
     print "parsed response: \n" if $data->{debug};
     print Dumper($hash) if $data->{debug};
+    if(! $hash->{response}){
+        $hash->{response}->{result}->{code} = 9999;
+        $hash->{response}->{result}->{msg}->{content} = "Could not parse response from server!";
+    }
     return $hash;
 }
 
@@ -201,7 +205,7 @@ sub _template {
         INCLUDE_PATH => [ $data->{account}->{template_path} ] );
     my $template = '';
     $t->process( 'frame.tt', $data->{payload}, \$template ) || carp $t->error;
-    print STDERR $template;
+    #print STDERR $template;
     return $template;
 }
 
@@ -218,7 +222,7 @@ sub _send {
     my ( $conn, $request, $conf ) = @_;
 
     my $client = $conn->{sock};
-    print STDERR "SOCKET: $client\n";
+    #print STDERR "SOCKET: $client\n";
 
     if ( $conf->{debug} ) {
         print "sending this template:\n";
