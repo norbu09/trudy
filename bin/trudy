@@ -15,10 +15,12 @@ my $help;
 my $man;
 my $conf = $FindBin::Bin.'/../etc/agenda.conf';
 my $debug;
+my $migrate;
 
 GetOptions(
     "config|c=s"   => \$conf,
     "verbose|v"    => \$debug,
+    "migrate|m"    => \$migrate,
     'help|?'       => \$help,
     "man"          => \$man,
 ) or pod2usage(2);
@@ -31,17 +33,23 @@ my $config = $_conf->{DefaultConfig};
 $config->{debug} = 1 if $debug;
 
 # copy the template DB to the working DB
+my $base_db = $config->{datastore}->{db};
 my $work_db = $config->{datastore}->{db}.'.'.time;
 copy($config->{datastore}->{db}, $work_db) 
     or die "Could not create test database: $@";
 $config->{datastore}->{db} = $work_db;
 # read in our commands
 my $res = Trudy::run($config);
+
+if($migrate){
+    Trudy::migrate_results($work_db, $base_db);
+}
+
 print Dumper($res);
 
 =head1 NAME
 
-trudy - a CLI interface to EPP
+trudy - a CLI interface to Trudy, a EPP stress test tool
 
 =head1 VERSION
 
@@ -54,6 +62,7 @@ trudy [options]
  Options:
    -config|c        config file
    -datafile|d      data file
+   -migrate|m       migrate succesful results back into the template DB
    -help|?          brief help message
    -verbose|v       be chatty
    -man             full documentation
@@ -62,12 +71,6 @@ trudy [options]
    [command]
      key = value
 
-The data file holds the data for the different commands. The data file
-is a simple INI file with the command as the ini section identifier and
-then key/value pairs for the commands. The default is 'command.ini'
-
-The config file is INI style as well and configures the remote server
-(host and port) and template paths. the default is 'etc/trudy.ini'
 
 =head1 AUTHOR
 

@@ -11,11 +11,10 @@ use Data::Dumper;
 use Exporter;
 use Switch;
 use Carp;
-use Storable qw(freeze thaw);
 
 $VERSION   = 0.1;
 @ISA       = qw(Exporter);
-@EXPORT_OK = qw(archive preserve provide);
+@EXPORT_OK = qw(archive migrate preserve provide);
 
 sub setup {
     my $db  = shift;
@@ -77,6 +76,25 @@ sub preserve {
 
     return "ERR: command outcome can not be preserved";
 
+}
+
+sub migrate {
+    my ($src, $dest) = @_;
+
+    my $dbh1 = setup($src);
+    my $dbh2 = setup($dest);
+
+    foreach my $table (qw/handles systemdomains/){
+        my $res = $dbh1->selectall_arrayref("SELECT * FROM $table");
+        foreach my $line (@{$res}){
+            my $vals = join(',', @{$line});
+            my $ins = "INSERT INTO $table VALUES ('$vals')\n";
+            print STDERR $ins;
+            $dbh2->do($ins);
+            print STDERR $dbh2->errstr() if $dbh2->errstr;
+        }
+    }
+    return;
 }
 
 sub set_handle_data {

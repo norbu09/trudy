@@ -7,7 +7,7 @@ use warnings;
 use Config::General;
 use Trudy::Registry;
 use Data::Dumper;
-use Trudy::Plugins::SQLite qw(archive preserve provide);
+use Trudy::Plugins::SQLite qw(archive migrate preserve provide);
 use Switch;
 use List::Util 'shuffle';
 use Carp;
@@ -111,6 +111,11 @@ sub save_result {
     if($res){
         preserve($conf->{datastore}, $command, $res);
     }
+}
+
+sub migrate_results {
+    my ($src, $dest) = @_;
+    migrate($src, $dest)
 }
 
 sub get_result_summary {
