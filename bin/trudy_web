@@ -66,8 +66,10 @@ __DATA__
 </tr>
 % }
 </table>
+<script>$("tr:even").css("background-color", "#dddddd");</script>
 
 @@ command.html.ep
+% layout 'default';
 <h1><%= $command %></h1>
 <table>
 % foreach my $line (@$commands) {
@@ -87,8 +89,10 @@ __DATA__
 </tr>
 % }
 </table>
+<script>$("tr:even").css("background-color", "#dddddd");</script>
 
 @@ code.html.ep
+% layout 'default';
 <h1><%= $code %></h1>
 <table>
 % foreach my $line (@$codes) {
@@ -108,9 +112,17 @@ __DATA__
 </tr>
 % }
 </table>
+<script>$("tr:even").css("background-color", "#dddddd");</script>
 
 @@ layouts/default.html.ep
 <!doctype html><html>
-    <head><title>Trudy!</title></head>
-    <body><%== content %></body>
+    <head>
+      <title>Trudy!</title>
+      <style>
+        table { background:#ffffff; }
+      </style>
+      <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    </head>
+    <body>
+      <%== content %></body>
 </html>
