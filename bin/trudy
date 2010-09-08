@@ -39,13 +39,11 @@ copy($config->{datastore}->{db}, $work_db)
     or die "Could not create test database: $@";
 $config->{datastore}->{db} = $work_db;
 # read in our commands
-my $res = Trudy::run($config);
+Trudy::run($config);
 
 if($migrate){
     Trudy::migrate_results($work_db, $base_db, $debug);
 }
-
-print Dumper($res);
 
 =head1 NAME
 
