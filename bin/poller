@@ -52,6 +52,7 @@ while($log_id){
         print LOG "[".$res->{response}->{msgQ}->{qDate}."]\n";
         print LOG Dumper($res->{response}->{msgQ},$res->{response}->{resData} );
         print LOG "\n---------------------\n";
+        sleep 1;
 
         $config->{command} = 'pollack';
         $config->{payload} = {msg => $res->{response}->{msgQ}->{id}};
@@ -60,6 +61,7 @@ while($log_id){
             unless $res->{response}->{result}->{code} =~ /^1/;
 
         last if $debug;
+        sleep 1;
 }
 
 close LOG;
