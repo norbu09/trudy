@@ -43,8 +43,8 @@ open(LOG, '>>', $config->{datastore}->{db}) or die "Could not open logfile!: ". 
 my $log_id = 1;
 while($log_id){
     
-        $conf->{command} = 'poll';
-        my $res = Trudy::Registry::talk($conf, $sock);
+        $config->{command} = 'poll';
+        my $res = Trudy::Registry::talk($config, $sock);
         die "Could not poll: ".$res->{response}->{result}->{msg}->{content} 
             unless $res->{response}->{result}->{code} =~ /^1/;
         $log_id = $res->{response}->{msgQ}->{count};
@@ -53,9 +53,9 @@ while($log_id){
         print LOG Dumper($res->{response}->{msgQ},$res->{response}->{resData} );
         print LOG "\n---------------------\n";
 
-        $conf->{command} = 'pollack';
-        $conf->{payload} = {msg => $res->{response}->{msgQ}->{id}};
-        $res = Trudy::Registry::talk($conf, $sock);
+        $config->{command} = 'pollack';
+        $config->{payload} = {msg => $res->{response}->{msgQ}->{id}};
+        $res = Trudy::Registry::talk($config, $sock);
         die "Could not ack: ".$res->{response}->{result}->{msg}->{content} 
             unless $res->{response}->{result}->{code} =~ /^1/;
 
