@@ -16,12 +16,10 @@ my $help;
 my $man;
 my $conf = $FindBin::Bin.'/../etc/poller.conf';
 my $debug;
-my $migrate;
 
 GetOptions(
     "config|c=s"   => \$conf,
     "verbose|v"    => \$debug,
-    "migrate|m"    => \$migrate,
     'help|?'       => \$help,
     "man"          => \$man,
 ) or pod2usage(2);
@@ -34,16 +32,37 @@ my $config = $_conf->{DefaultConfig};
 $config->{debug} = 1 if $debug;
 
 # poll the queue
-my $sock = Trudy::setup($conf);
-my $login = Trudy::Registry::login($conf, $sock);
+my $sock = Trudy::Registry::connect($config);
+my $login = Trudy::Registry::login($config, $sock);
 print STDERR Dumper($login) ;
 die "Could not log in: ".$login->{response}->{result}->{msg}->{content} 
     unless $login->{response}->{result}->{code} == 1000;
-#Trudy::run($config);
 
-#if($migrate){
-#    Trudy::migrate_results($work_db, $base_db, $debug);
-#}
+open(LOG, '>>', $config->{datastore}->{db}) or die "Could not open logfile!: ". $!;
+
+my $log_id = 1;
+while($log_id){
+    
+        $conf->{command} = 'poll';
+        my $res = Trudy::Registry::talk($conf, $sock);
+        die "Could not poll: ".$res->{response}->{result}->{msg}->{content} 
+            unless $res->{response}->{result}->{code} =~ /^1/;
+        $log_id = $res->{response}->{msgQ}->{count};
+
+        print LOG "[".$res->{response}->{msgQ}->{qDate}."]\n";
+        print LOG Dumper($res->{response}->{msgQ},$res->{response}->{resData} );
+        print LOG "\n---------------------\n";
+
+        $conf->{command} = 'pollack';
+        $conf->{payload} = {msg => $res->{response}->{msgQ}->{id}};
+        $res = Trudy::Registry::talk($conf, $sock);
+        die "Could not ack: ".$res->{response}->{result}->{msg}->{content} 
+            unless $res->{response}->{result}->{code} =~ /^1/;
+
+        last if $debug;
+}
+
+close LOG;
 
 =head1 NAME
 
