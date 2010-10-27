@@ -196,8 +196,8 @@ template tree.
 sub _template {
     my ($data) = @_;
     $data->{payload}->{command} = $data->{command} . '.tt';
-    #$data->{payload}->{transaction_id} = time.'-trudy'
-    #    unless $data->{payload}->{transaction_id};
+    $data->{payload}->{transaction_id} = time.rand(time).'-trudy'
+        unless $data->{payload}->{transaction_id};
     print STDERR Dumper($data) if $data->{debug};
      #my $t = Template::Alloy->new( DEBUG => 'DEBUG_ALL', INCLUDE_PATH => [ $data->{account}->{template_path}, module_dir(__PACKAGE__)."/share/NZRS/EPP" ], );
     my $t =
